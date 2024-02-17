@@ -3,9 +3,130 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title></title>
+	<title>JoesHotDogs</title>
 </head>
 <body>
+<h1>Welcome to Joe's Hotdogs!</h1>
+<button onclick="order();" style="display: block;">Click Here to Order</button>
 
+<p class="receipt" style="display:none;">Thanks for your order! Here's your receipt</p>
+<p class="receipt" style="display:none;">-----------------------------------------------</p>
+<p class="receipt" id="dogCost" style="display:none;"></p>
+<p class="receipt" id="fryCost" style="display:none;"></p>
+<p class="receipt" id="drinkCost" style="display:none;"></p>
+<p class="receipt" style="display:none;">-----------------------------------------------</p>
+<p class="receipt" id="mySubtotal" style="display:none;"></p>
+<p class="receipt" id="discount" style="display:none;"></p>
+<p class="receipt" id="discountSubtotal" style="display:none;"></p>
+<p class="receipt" id="tax" style="display:none;"></p>
+<p class="receipt" id="finalTotal" style="display:none;"></p>
+
+<script type="text/javascript">
+
+	const dogPrice = 4.65;
+	const fryPrice = 3.75;
+	const sodaPrice = 1.89;
+
+	var discount=0;
+	var subtotal=0;
+	var massTax=0;
+
+	var numSoda =0;
+	var numFries =0;
+	var numDogs = 0;
+
+	function order() {
+		numDogs = parseFloat(prompt("How many orders of hotdogs would you like?"));
+		numFries = parseFloat(prompt("How many orders of fries would you like?"));
+		numSoda = parseFloat(prompt("How many orders of drinks would you like?"));
+		showReceipt();
+	}
+	function showMoney(myNum){
+		myNumStr=myNum.toString();
+		rounded="";
+		if (myNumStr.indexOf(".")==-1) {myNumStr="$"+myNumStr+".00"}// if it doesnt have decimal
+		else{
+			var preDecimal=myNumStr.substr(0,myNumStr.indexOf("."));
+			var postDecimal=myNumStr.substr(myNumStr.indexOf(".")+1);
+
+			//if there is only one number after decimal point
+			if (postDecimal.length==1) {rounded= "$"+myNumStr+"0"}
+			else{ 
+				var postDecSize=postDecimal.length;
+				var addNext=0;
+				cur='';
+				next='';
+				for (var i = postDecSize - 1; i > 1; i--) {
+					next=postDecimal.charAt(i-1);//second to last number
+
+					//last digit of number + whatever is carried over from previous rounding
+					cur=(parseFloat(postDecimal.substr(i)) +addNext).toString();
+
+					if (cur.length==2 ||(parseFloat(cur)>=5 && i!=1)){addNext=1;}
+					else { addNext=0;}
+					postDecimal=postDecimal.substr(0,i);//last digit cut off cause rounding has happened
+				}
+				if (cur.length==2) {addNext=1;}// if cur==10
+				
+				//if theres nothing left over from previous rounding 
+				if (addNext==0) {rounded="$"+preDecimal+"."+postDecimal;}
+				else{
+					numpostDecimal=parseFloat(postDecimal)+1;
+					if (numpostDecimal==100) {
+						preDecimal=(parseFloat(preDecimal)+1).toString();
+						rounded="$"+preDecimal+".00"
+					}else{rounded="$"+preDecimal+"."+numpostDecimal;}
+
+			}
+			}
+		}
+		return rounded;
+		
+	}
+
+	function calcPrice(){
+		subtotal= (numDogs*dogPrice)+ (numFries*fryPrice)+(numSoda*sodaPrice);
+
+		massTax= .0625*subtotal;
+		subtotal=subtotal+massTax;
+		
+	}
+	function showReceipt(){
+		receiptStuff= document.getElementsByClassName("receipt")
+
+		//Quantity of each item ordered and the total cost for that item
+		document.getElementById("dogCost").innerHTML = numDogs + " Hot Dogs ---> "+ showMoney(numDogs*dogPrice);
+		document.getElementById("fryCost").innerHTML = numFries + " French Fries ---> "+ showMoney(numFries*fryPrice);;
+		document.getElementById("drinkCost").innerHTML = numSoda + " Sodas ---> "+ showMoney(numSoda*sodaPrice);
+
+		subtotal= (numDogs*dogPrice)+ (numFries*fryPrice)+(numSoda*sodaPrice);
+		document.getElementById("mySubtotal").innerHTML ="Subtotal: "+showMoney(subtotal);
+
+		if (subtotal>=25) { //joes discount
+			discount=.1*subtotal;
+			subtotal=subtotal-discount;
+			document.getElementById("discount").innerHTML ="Joe’s Special Discount: "+showMoney(discount);
+		}else{document.getElementById("discount").innerHTML ="Joe’s special discount not applicable :(";}
+		document.getElementById("discountSubtotal").innerHTML ="New Subtotal: "+ showMoney(subtotal);
+
+		massTax= .0625*subtotal;
+		subtotal=subtotal+massTax;
+		document.getElementById("tax").innerHTML = "6.25% Massachusetts meals tax: "+showMoney(massTax);
+		document.getElementById("finalTotal").innerHTML ="Final Total: "+ showMoney(subtotal);
+
+
+		for (var i=0;i<receiptStuff.length;i+=1){
+			receiptStuff[i].style.display = 'block';
+		}
+
+// <p class="receipt" id="discount" style="diplay:none;"></p>
+// <p class="receipt" id="discountSubtotal" style="diplay:none;"></p>
+// <p class="receipt" id="tax" style="diplay:none;"></p>
+// <p class="receipt" id="finalTotal" style="diplay:none;"></p>
+
+	}
+
+	
+</script>
 </body>
 </html>
